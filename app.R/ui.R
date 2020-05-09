@@ -8,26 +8,54 @@
 #
 
 library(shiny)
+library(shiny.semantic)
+library(semantic.dashboard)
+library(plotly)
+library(DT)
 
 # Define UI for application that draws a histogram
-shinyUI(fluidPage(
+shinyUI(dashboardPage(
+    dashboardHeader(dropdownMenuOutput("dropdown"),
+                    dropdownMenu(type = "notifications",
+                                 taskItem("Project progress...", 50.777, color = "red")),
+                    dropdownMenu(icon = uiicon("red warning sign"),
+                                 notificationItem("This is an important notification!", color = "red"))),
+    dashboardSidebar(side = "left",
+                     sidebarMenu(
+                         menuItem(tabName = "plot_tab", text = "My plot", icon = icon("home")),
+                         menuItem(tabName = "table_tab", text = "My table", icon = icon("smile")))),
+    dashboardBody(
+        tabItems(
+            tabItem(tabName = "plot_tab",
+                    fluidRow(
+                        valueBox("Unread Mail", 44, icon("mail"), color = "blue", width = 5)),
+                    fluidRow(
+                        box(title = "Sample box", color = "blue", width = 11,
+                            selectInput(inputId =  "variable1", choices = names(mtcars),
+                                        label = "Select first variable", selected = "mpg"),
+                            selectInput(inputId =  "variable2", choices = names(mtcars),
+                                        label = "Select second variable", selected = "cyl"),
+                            plotlyOutput("mtcars_plot")),
+                        tabBox(title = "Sample box", color = "blue", width = 5,
+                               collapsible = FALSE,
+                               tabs = list(
+                                   list(menu = "First Tab", content = "Some text..."),
+                                   list(menu = "Second Tab", content = plotlyOutput("mtcars_plot2"))
+                               )))),
+            tabItem(tabName = "table_tab",
+                    fluidRow(
+                        valueBox("Unread Mail", 144, icon("mail"), color = "blue", width = 6, size = "small"),
+                        valueBox("Spam", 20, icon("mail"), color = "red", width = 5, size = "small"),
+                        valueBox("Readed Mail", 666, icon("mail"), color = "green", width = 5, size = "small")
+                    ),
+                    fluidRow(
+                        box(title = "Classic box", color = "blue", ribbon = FALSE,
+                            title_side = "top left", width = 14,
+                            tags$div(
+                                dataTableOutput("mtcars_table")
+                                , style = paste0("color:", semantic_palette[["blue"]], ";"))
+                        ))))
+    ), theme = "slate"
+)
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
-        )
-    )
-))
+)
