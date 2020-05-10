@@ -7,24 +7,20 @@
 #    http://shiny.rstudio.com/
 #
 
+library(shiny)
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output,session) {
-
-    output$mtcars_plot <- renderPlotly(plot_ly(mtcars, x = ~ mtcars[ , input$variable1],
-                                               y = ~ mtcars[ , input$variable2],
-                                               type = "scatter", mode = "markers")
-    )
-    output$mtcars_plot2 <- renderPlotly(plot_ly(mtcars, x = ~ mtcars[ , input$variable1],
-                                                y = ~ mtcars[ , input$variable2],
-                                                type = "scatter", mode = "markers"))
+shinyServer(function(input, output) {
     
-    output$mtcars_table <- renderDataTable(mtcars, options = list(dom = 't'))
-    
-    output$dropdown <- renderDropdownMenu({
-        dropdownMenu(messageItem("User", "Test message", color = "teal", style = "min-width: 200px"),
-                     messageItem("Users", "Test message", color = "teal", icon = "users"),
-                     messageItem("See this", "Another test", icon = "warning", color = "red"))
+    output$distPlot <- renderPlot({
+        
+        # generate bins based on input$bins from ui.R
+        x    <- faithful[, 2]
+        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+        
+        # draw the histogram with the specified number of bins
+        hist(x, breaks = bins, col = 'darkgray', border = 'white')
+        
     })
-
+    
 })
